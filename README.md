@@ -18,3 +18,11 @@ these are some of the key points of the setup:
  - **The Prometheus exporters** Prometheus scrape the data from the log files stored in the system. Therefore the log files need to be mounted as their volumes (as read-only).
  - **Promtail** allows us to add various metadata to logs, such as labels (see the pipelinestages section of _promtail config file). This makes logs easy to query.
  - **Grafana** exposes the dashboard at localhost:3000. Requests to rides.jurajmajerik.com/grafana are reverse-proxied to localhost:3000, returning the dashboard to the user.
+
+
+
+
+============
+
+• nginx -t
+    => test configuration of nginx.conf if there is any error or no
