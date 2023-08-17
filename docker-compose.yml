@@ -53,11 +53,11 @@ services:
     restart: unless-stopped
 
   # LOGGING STACK
-  loki:
-    image: grafana/loki:latest
+  # loki:
+  #   image: grafana/loki:latest
 
-  promtail:
-    image: grafana/promtail:latest
+  # promtail:
+  #   image: grafana/promtail:latest
 
 volumes:
   prometheus_data:
