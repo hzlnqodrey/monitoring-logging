@@ -19,10 +19,5 @@ these are some of the key points of the setup:
  - **Promtail** allows us to add various metadata to logs, such as labels (see the pipelinestages section of _promtail config file). This makes logs easy to query.
  - **Grafana** exposes the dashboard at localhost:3000. Requests to rides.jurajmajerik.com/grafana are reverse-proxied to localhost:3000, returning the dashboard to the user.
 
-
-
-
-============
-
-• nginx -t
-    => test configuration of nginx.conf if there is any error or no
+## Monitoring-and-Logging Infrastructure Architecture
+![image](https://github.com/hzlnqodrey/monitoring-logging/assets/57006944/baf9f018-d5d7-42a8-a064-5af196237a85)
