@@ -23,11 +23,22 @@ services:
     restart: unless-stopped
     volumes:
       - "/:/host:ro,rslave"
-      
+
   # mysqld_exporter:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.45.0
+    container_name: cadvisor
+    ports:
+      - "9092:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+    devices:
+      - /dev/kmsg
+    restart: unless-stopped
+    privileged: true
 
   grafana:
     image: grafana/grafana-oss:latest
