@@ -23,4 +23,4 @@ these are some of the key points of the setup:
 ![image](https://github.com/hzlnqodrey/monitoring-logging/assets/57006944/baf9f018-d5d7-42a8-a064-5af196237a85)
 
 ## TODO:
- - [] fix cadvisor mounting with WSL2 + Docker Desktop Enginer in /var/lib/docker
+ - [ ] fix cadvisor mounting with WSL2 + Docker Desktop Enginer in /var/lib/docker
