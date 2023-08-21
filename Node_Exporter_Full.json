@@ -11,7 +11,7 @@
   ],
   "__elements": {},
   "__requires": [
-    {
+    {gi
       "type": "panel",
       "id": "gauge",
       "name": "Gauge",
