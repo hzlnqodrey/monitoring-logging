@@ -22,5 +22,114 @@ these are some of the key points of the setup:
 ## Monitoring-and-Logging Infrastructure Architecture
 ![image](https://github.com/hzlnqodrey/monitoring-logging/assets/57006944/baf9f018-d5d7-42a8-a064-5af196237a85)
 
+# Procedure [Documentation]
+
+### 1. Setup prometheus.yml
+
+```yaml
+global:
+  scrape_interval:     4s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    metrics_path: /prometheus/metrics
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node_exporter'
+    static_configs:
+     - targets: ['node_exporter:9100']
+
+  - job_name: 'cadvisor'
+    static_configs:
+     - targets: ['cadvisor:8080']
+```
+
+### 2. Setup docker-compose.yaml for building the stacks
+
+```yaml
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus-prod.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.external-url=/prometheus/"
+      - "--web.route-prefix=/prometheus/"
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.45.0     
+    container_name: cadvisor
+    ports:
+      - "9092:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    restart: unless-stopped
+    privileged: true
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    user: "0:0"
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana.ini:/etc/grafana/grafana.ini
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+```
+### 3. Configure Volumen Mounting for cAdvisor (because after reboot, WSL2 system deleted symlink mounting)
+
+```bash
+sudo mount -t drvfs '\\wsl$\docker-desktop-data\data\docker' /mnt/docker_data
+```
+
+
+### 4. Deploy
+
+```bash
+docker-compose up -d grafana prometheus node_exporter cadvisor
+```
+
+### 5. Open Grafana
+
+- Add Prometheus Data Source
+
+```bash
+Name: Prometheus
+Prometheus server URL: http://host.docker.internal:9090/prometheus/ or http://host.docker.internal:9090/prometheus
+```
+
+- Everything else is default, click **Save & Test**
 ## TODO:
- - [ ] fix cadvisor mounting with WSL2 + Docker Desktop Enginer in /var/lib/docker
+ - [x] fix cadvisor mounting with WSL2 + Docker Desktop Enginer in /var/lib/docker
+ - [ ] choose between auto mounting docker_data or execute sudo mount -t drvfs

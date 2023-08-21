@@ -24,20 +24,8 @@ services:
     restart: unless-stopped
     volumes:
       - '/:/host:ro,rslave'
-
-  # postgres-exporter:
-  #   image: quay.io/prometheuscommunity/postgres-exporter:v0.11.1
-  #   container_name: postgres_exporter
-  #   environment:
-  #     - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${SERVER_IP}:5432/${POSTGRES_DBNAME}?sslmode=disable
-  #   volumes:
-  #     - ./postgres_exporter.yml:/postgres_exporter.yml
-  #     - ./postgres_exporter-queries.yml:/queries.yml
-  #   ports:
-  #     - 9187:9187
-  #   command:
-  #     - '--extend.query-path=/queries.yml'
-
+  
+  # WINDOWS VOLUMES 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
     container_name: cadvisor
