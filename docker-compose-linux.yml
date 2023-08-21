@@ -39,19 +39,16 @@ services:
   #     - '--extend.query-path=/queries.yml'
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    image: gcr.io/cadvisor/cadvisor:latest  
     container_name: cadvisor
     ports:
       - "8080:8080"
     volumes:
       - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /etc/machine-id:/etc/machine-id:ro
-      - /mnt/docker_data/:/rootfs/var/lib/docker:ro
+      - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-      - /etc/localtime:/etc/localtime:ro
     devices:
       - /dev/kmsg
     restart: unless-stopped
