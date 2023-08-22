@@ -147,11 +147,23 @@ Prometheus server URL: http://host.docker.internal:9090/prometheus/ or http://ho
 - Everything else is default, click **Save & Test**
 - Import Dashboard
 
+- Add Loki Data Source
+```bash
+Name: Loki
+Prometheus server URL: http://loki:3100
+```
+
+- Loki Query
+  
+According to this [Link](https://grafana.com/blog/2022/03/02/new-in-grafana-8.4-how-to-use-full-range-log-volume-histograms-with-grafana-loki/?pg=getting-started-shipping-logs-to-grafana-loki), you must add "``` | logfmt ```" 
+
 
 ## TODO:
- - [x] fix cadvisor mounting with WSL2 + Docker Desktop Enginer in /var/lib/docker
- - [x] choose between auto mounting docker_data or execute sudo mount -t drvfs
+ - [x] Monitoring Stack
+   - [x] fix cadvisor mounting with WSL2 + Docker Desktop Enginer in /var/lib/docker
+   - [x] choose between auto mounting docker_data or execute sudo mount -t drvfs
  - [ ] Logging Stack
+   - [x] add logging level labels "``` error ```", "``` debug ```", "``` warn ```", and "``` info ```"
  - [ ] Mysql Exporter
  - [ ] Up to Cloud Infra
  - [ ] Config in Cloud Infra
