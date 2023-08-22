@@ -1,4 +1,4 @@
-auth-enabled: false
+auth_enabled: false
 
 server:
   http_listen_port: 3100
@@ -15,9 +15,9 @@ common:
     instance_addr: 127.0.0.1
     kvstore:
       store: inmemory
-  
+
 query_range:
-  result_cache:
+  results_cache:
     cache:
       embedded_cache:
         enabled: true

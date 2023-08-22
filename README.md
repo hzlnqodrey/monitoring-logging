@@ -120,7 +120,22 @@ sudo mount -t drvfs '\\wsl$\docker-desktop-data\data\docker' /mnt/docker_data
 docker-compose up -d grafana prometheus node_exporter cadvisor
 ```
 
-### 5. Open Grafana
+### 5. Check Prometheus Status
+
+```bash
+http://host.docker.internal:9090/prometheus/
+http://host.docker.internal:9090/prometheus/metrics
+http://localhost:9090/prometheus/
+```
+
+### 6. Check Loki Status
+
+```bash
+http://host.docker.internal:3100/metrics
+http://host.docker.internal:3100/ready
+```
+
+### 7. Open Grafana
 
 - Add Prometheus Data Source
 
@@ -130,6 +145,9 @@ Prometheus server URL: http://host.docker.internal:9090/prometheus/ or http://ho
 ```
 
 - Everything else is default, click **Save & Test**
+- Import Dashboard
+
+
 ## TODO:
  - [x] fix cadvisor mounting with WSL2 + Docker Desktop Enginer in /var/lib/docker
  - [x] choose between auto mounting docker_data or execute sudo mount -t drvfs
