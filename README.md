@@ -132,4 +132,8 @@ Prometheus server URL: http://host.docker.internal:9090/prometheus/ or http://ho
 - Everything else is default, click **Save & Test**
 ## TODO:
  - [x] fix cadvisor mounting with WSL2 + Docker Desktop Enginer in /var/lib/docker
- - [ ] choose between auto mounting docker_data or execute sudo mount -t drvfs
+ - [x] choose between auto mounting docker_data or execute sudo mount -t drvfs
+ - [ ] Logging Stack
+ - [ ] Mysql Exporter
+ - [ ] Up to Cloud Infra
+ - [ ] Config in Cloud Infra
