@@ -107,13 +107,11 @@ volumes:
   grafana-data:
     driver: local
 ```
-### 3. Configure Volumen Mounting for cAdvisor (because after reboot, WSL2 system deleted symlink mounting)
+### 3. Configure Volume Mounting for cAdvisor (because after reboot, WSL2 system deleted symlink mounting)
 
 ```bash
 sudo mount -t drvfs '\\wsl$\docker-desktop-data\data\docker' /mnt/docker_data
 ```
-
-
 ### 4. Deploy
 
 ```bash
@@ -145,7 +143,7 @@ Prometheus server URL: http://host.docker.internal:9090/prometheus/ or http://ho
 ```
 
 - Everything else is default, click **Save & Test**
-- Import Dashboard
+- Import Dashboard (check [Grafana Labs](https://grafana.com/grafana/dashboards/))
 
 - Add Loki Data Source
 ```bash
@@ -154,8 +152,38 @@ Prometheus server URL: http://loki:3100
 ```
 
 - Loki Query
-  
 According to this [Link](https://grafana.com/blog/2022/03/02/new-in-grafana-8.4-how-to-use-full-range-log-volume-histograms-with-grafana-loki/?pg=getting-started-shipping-logs-to-grafana-loki), you must add "``` | logfmt ```" 
+```bash
+{jobs="varlogs"} | logfmt | level=`error` |= "docker"
+```
+### 8. On Docker Driver Plugin
+- Install Plugin in each target machines that running a container
+```bash
+docker plugin install grafana/loki-docker-driver:2.8.2 --alias loki --grant-all-permissions
+```
+- check plugin staus
+```bash
+docker plugin ls
+```
+
+- Change the default logging driver
+
+If you want the Loki logging driver to be the default for all containers, change Docker’s daemon.json file (located in /etc/docker on Linux) and set the value of log-driver to loki:
+```txt
+Note:
+The Loki logging driver still uses the json-log driver in combination with sending logs to Loki, this is mainly useful to keep the docker logs command working. You can adjust file size and rotation using the respective log option max-size and max-file. Keep in mind that default values for these options are not taken from json-log configuration. You can deactivate this behavior by setting the log option no-file to true.
+```
+```json
+{
+    "log-driver": "loki",
+    "log-opts": {
+        // "loki-url": "https://<user_id>:<password>@logs-us-west1.grafana.net/loki/api/v1/push",
+        "loki-url": "http://localhost:3100/loki/api/v1/push",
+        "loki-batch-size": "400"
+    }
+}
+
+```
 
 
 ## TODO:
@@ -167,3 +195,12 @@ According to this [Link](https://grafana.com/blog/2022/03/02/new-in-grafana-8.4-
  - [ ] Mysql Exporter
  - [ ] Up to Cloud Infra
  - [ ] Config in Cloud Infra
+   - [ ] Monitoring
+     - [ ] add/install/deploy the EXPORTERS (node_exporter, cAdvisor, etc) in TARGET_SERVER
+     - [ ] connect it to PROMETHEUS MASTER SERVER (add the target ip in the prometheus.yml)
+   - [ ] Logging
+     - [ ] add/install docker driver plugin in the TARGET_SERVER (REMOTE VMs) to push all logging containers - according to this [link](https://grafana.com/docs/loki/v2.8.x/clients/docker-driver/configuration/)
+        ```bash
+            docker plugin install grafana/loki-docker-driver:2.8.2 --alias loki --grant-all-permissions
+        ```
+     - [ ] 
