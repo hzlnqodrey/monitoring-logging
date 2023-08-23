@@ -27,12 +27,11 @@ these are some of the key points of the setup:
 ### 1. Setup prometheus.yml
 ```yaml
 global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
+  scrape_interval:     10s
 
 scrape_configs:
   - job_name: 'prometheus'
-    metrics_path: /prometheus/metrics
+    metrics_path: /metrics
     static_configs:
       - targets: ['localhost:9090']
 
@@ -43,6 +42,10 @@ scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
      - targets: ['cadvisor:8080']
+
+  - job_name: 'postgres_exporter'
+    static_configs:
+     - targets: ['postgres_exporter:9187']
 ```
 ### 1.2 Setup promtai-config.yml
 ```yaml
