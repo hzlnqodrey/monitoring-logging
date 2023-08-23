@@ -5,28 +5,38 @@ server:
 positions:
   filename: /tmp/positions.yaml
 
-# PUSHING LOGS TO LOKI
 clients:
   - url: http://loki:3100/loki/api/v1/push
 
-
-# local machine logs
-# scrape_configs:
-#   - job_name: local
-#     static_configs:
-#     - targets:
-#       - localhost
-#       labels:
-#         job: varlogs
-#         __path__: /var/log/*log
-
-
-# docker logs
 scrape_configs:
-  - job_name: docker
-    pipeline_changes:
-      - docker: {}
+  - job_name: local
     static_configs:
-      - labels:
-        job: docker
-        __path__: /var/lib/docker/containers/*/*-json.log
+    - targets:
+        - localhost
+      labels:
+        job: varlogs
+        __path__: /var/log/*log
+
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///run/docker.sock
+        refresh_interval: 5s
+    pipeline_stages:
+    - match:
+        selector: '{job="docker"}'
+        stages:
+        - regex:
+            expression: '.*level=(?P<level>[a-zA-Z]+).*ts=(?P<timestamp>[T\d-:.Z]*).*msg=(?P<msg>[a-zA-Z]+).*err=(?P<err>[a-zA-Z]+)'
+        - labels:
+            level:
+            msg:
+            err:
+        - timestamp:
+            format: RFC3339Nano
+            source: timestamp
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['level']
+        target_label: 'level'
