@@ -25,10 +25,10 @@ these are some of the key points of the setup:
 # Procedure [Documentation]
 
 ### 1. Setup prometheus.yml
-
 ```yaml
 global:
-  scrape_interval:     4s
+  scrape_interval: 15s
+  evaluation_interval: 15s
 
 scrape_configs:
   - job_name: 'prometheus'
@@ -44,7 +44,105 @@ scrape_configs:
     static_configs:
      - targets: ['cadvisor:8080']
 ```
+### 1.2 Setup promtai-config.yml
+```yaml
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
 
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: local
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: varlogs
+        __path__: /var/log/*log
+
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///run/docker.sock
+        refresh_interval: 5s
+    pipeline_stages:
+    - match:
+        selector: '{job="docker"}'
+        stages:
+        - regex:
+            expression: '.*level=(?P<level>[a-zA-Z]+).*ts=(?P<timestamp>[T\d-:.Z]*).*msg=(?P<msg>[a-zA-Z]+).*err=(?P<err>[a-zA-Z]+)'
+        - labels:
+            level:
+            msg:
+            err:
+        - timestamp:
+            format: RFC3339Nano
+            source: timestamp
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['level']
+        target_label: 'level'
+```
+
+### 1.2 Setup loki-config.yml
+```yaml
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+common:
+  path_prefix: /tmp/loki
+  storage:
+    filesystem:
+      chunks_directory: /tmp/loki/chunks
+      rules_directory: /tmp/loki/rules
+  replication_factor: 1
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+ruler:
+  alertmanager_url: http://localhost:9093
+
+analytics:
+  reporting_enabled: false
+```
+
+### 1.2 Setup postgres_exporter.yml
+```yaml
+pg_stat_activity:
+  query: "SELECT COUNT(*) AS active_connections, now() as timestamp FROM pg_stat_activity WHERE state = 'active'"
+  metrics:
+    - active_connections:
+        usage: "COUNTER"
+        description: "Number of active connections"
+```
 ### 2. Setup docker-compose.yaml for building the stacks
 
 ```yaml
